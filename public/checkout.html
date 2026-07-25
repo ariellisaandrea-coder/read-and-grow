@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+<title>Checkout | Read and Grow</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+<h1>Read and Grow</h1>
+<p>Secure Checkout</p>
+</header>
+<main class="checkout-container">
+<section class="order-summary">
+<h2>Your Order</h2>
+<div id="checkout-items"></div>
+<h3 id="checkout-total"> Total: $0.00 </h3>
+</section>
+<section class="payment-section">
+<h2>Choose Payment Method</h2>
+<label class="payment-option">
+<input type="radio" name="payment-method" value="card"> 💳 Card Payment </label>
+<label class="payment-option">
+<input type="radio" name="payment-method" value="paypal"> PayPal </label>
+<label class="payment-option">
+<input type="radio" name="payment-method" value="account"> 🏦 Account Payment </label>
+<div id="payment-details"> <p> Select a payment method to continue </p> </div>
+<button id="continue-payment"> Continue to Payment </button>
+</section>
+</main>
+<script src="js/checkout.js"></script>
+</body>
+</html>

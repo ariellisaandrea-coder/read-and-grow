@@ -1,0 +1,23 @@
+body { margin: 0; font-family: Ariel, sans-seriff; background-color: #f5f5f5;}
+header { display: flex; justify-content: space-between; align-items: center;  background-color: darkblue; color: white; padding: 20px 40px; }
+nav a { color: white; text-decoration: none; margin-right: 20px;}
+main { padding: 40px;}
+h2 { color: darkblue; }
+.hero {text-align: center; padding: 60px;}
+.hero input {width: 300px; padding: 10px; font-size: 16px; }
+.hero button {padding: 10px 20px; background-color: darkblue; color: white; border: none; cursor: pointer;}
+.logo { font-size: 28px; font-weight: bold;}
+.books {padding: 40px;}
+.book-card {width: 80px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;}
+.book-card img { width: 100%; border-radius: 8px;}
+.price {color: green; font-size: 22px; font-weight: bold;}
+.book-card button {background: darkblue; color: white; border: none; padding: 10px 20px; cursor: pointer;}
+.book-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;}
+.logo img { width:200px; height: auto;}
+.cart-section { width: 90%; max-width: 700px; margin: 50px auto; padding: 25px; background-color: #f5f5f5; border-radius: 10px; }
+#cart-items > div { background-color: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; }
+quantity-controls { display: flex; align-items: center; gap: 15px; margin: 10px 0; }
+.quantity-controls button { width: 35px; height: 35px; font-size: 20px; cursor: pointer; }
+.remove-button { padding: 8px 15px; cursor: pointer; }
+#cart-items h3 { text-align: right; font-size: 22px; margin-top: 20px; }
+
