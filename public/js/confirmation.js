@@ -1,3 +1,14 @@
+const backToStoreButton =
+document.querySelector("#back-to-store");
+
+backToStoreButton.addEventListener(
+"click",
+function () {
+
+window.location.href = "index.html";
+
+}
+);
 const confirmationDetails =
 document.querySelector(
 "#confirmation-details"
