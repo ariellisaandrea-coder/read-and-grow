@@ -1,15 +1,1 @@
-{
-"name": "read-and-grow",
-"version": "1.0.0",
-"description": "",
-"main": "server.js",
-"scripts": {
-"start": "node server.js",
-"test": "echo \"Error: no test specified\" && exit 1"
-},
-"keywords": [],
-"type": "commonjs",
-"dependencies": {
-"better-sqlite3": "^13.0.1",
-"express": "^5.2.1"
-} }
+{"name":"read-and-grow","version":"1.0.0","description":"","main":"server.js","scripts":{"start":"node server.js","test":"echo \"Error: no test specified\" && exit 1"},"keywords":[],"type":"commonjs","dependencies":{"bcrypt":"^6.0.0","better-sqlite3":"^13.0.1","express":"^5.2.1"}}
