@@ -4,45 +4,35 @@ document.querySelector("#login-form");
 const loginMessage =
 document.querySelector("#login-message");
 
+
 loginForm.addEventListener(
-
 "submit",
-
-function(event){
+function(event) {
 
 event.preventDefault();
 
 fetch(
-
 "/api/login",
-
 {
+method: "POST",
 
-method:"POST",
-
-headers:{
-
-"Content-Type":"application/json"
-
+headers: {
+"Content-Type": "application/json"
 },
 
-body:JSON.stringify({
+body: JSON.stringify({
 
 email:
-
 document.querySelector("#email").value,
 
 password:
-
 document.querySelector("#password").value
 
 })
-
 }
-
 )
 
-.then(function(response){
+.then(function(response) {
 
 return response.json();
 
@@ -50,25 +40,30 @@ return response.json();
 
 .then(function(data){
 
+console.log("LOGIN RESPONSE:", data);
+
 loginMessage.textContent =
 data.message;
 
 if(data.success){
+localStorage.setItem(
+"jwtToken",
+data.jwtToken
+);
+console.log(
+"JWT SAVED:",
+localStorage.getItem("jwtToken")
+);
+
 
 localStorage.setItem(
-
-"sessionToken",
-
-data.token
-
+"fullName",
+data.fullName
 );
 
 localStorage.setItem(
-
-"fullName",
-
-data.fullName
-
+"role",
+data.role
 );
 
 setTimeout(function(){
@@ -81,7 +76,9 @@ window.location.href="profile.html";
 
 })
 
-.catch(function(){
+.catch(function(error) {
+
+console.error(error);
 
 loginMessage.textContent =
 "Unable to connect.";

@@ -1,265 +1,607 @@
 console.log("Admin dashboard loaded.");
 
+const jwtToken =
+localStorage.getItem("jwtToken");
+
 const adminBooks =
 document.querySelector("#admin-books");
 
 const form =
 document.querySelector("#add-book-form");
+
 let editingBookId = null;
+
+
+// ======================================
+// CHECK LOGIN
+// ======================================
+
+if (!jwtToken) {
+
+alert("Please log in first.");
+
+window.location.href = "login.html";
+
+}
+
+
+// ======================================
+// LOAD BOOKS
+// ======================================
+
 loadBooks();
 
 
-function loadBooks(){
+function loadBooks() {
 
-fetch("/api/admin/books")
+fetch("/api/admin/books", {
 
-.then(function(response){
+headers: {
+
+"Authorization":
+"Bearer " + jwtToken
+
+}
+
+})
+
+.then(function(response) {
+
+if (!response.ok) {
+
+throw new Error(
+"Unable to load books. Server returned " +
+response.status
+);
+
+}
 
 return response.json();
 
 })
 
-.then(function(books){
+.then(function(books) {
 
 displayBooks(books);
 
 })
 
-.catch(function(error){
+.catch(function(error) {
 
-console.error("Error loading books:", error);
+console.error(
+"Error loading books:",
+error
+);
 
 });
 
 }
 
 
-function displayBooks(books){
+// ======================================
+// DISPLAY BOOKS
+// ======================================
 
-adminBooks.innerHTML = "";
+function displayBooks(books) {
 
-books.forEach(function(book){
+    adminBooks.innerHTML = "";
 
-const card =
-document.createElement("div");
+    if (books.length === 0) {
 
-card.classList.add("book-card");
+        const emptyMessage =
+            document.createElement("p");
 
-card.innerHTML = `
+        emptyMessage.textContent =
+            "No books found.";
 
-<img src="${book.image}" alt="${book.title}">
+        adminBooks.appendChild(
+            emptyMessage
+        );
 
-<h3>${book.title}</h3>
+        return;
+    }
 
-<p>${book.author}</p>
+    books.forEach(function(book) {
 
-<p>${book.category}</p>
+        const card =
+            document.createElement("div");
 
-<p class="price">
-$${book.price.toFixed(2)}
-</p>
-
-<button
-class="edit-button"
-data-id="${book.id}">
-Edit
-</button>
-
-<button
-class="delete-button"
-data-id="${book.id}">
-Delete
-</button>
-
-`;
-
-adminBooks.appendChild(card);
-
-});
+        card.classList.add(
+            "book-card"
+        );
 
 
-const deleteButtons =
-document.querySelectorAll(".delete-button");
+        const image =
+            document.createElement("img");
 
-deleteButtons.forEach(function(button){
+        image.src =
+            String(book.image || "");
 
-button.addEventListener("click", function(){
+        image.alt =
+            String(book.title || "");
 
-const id =
-button.dataset.id;
 
-const confirmed =
-confirm("Delete this book?");
+        const title =
+            document.createElement("h3");
 
-if(!confirmed){
+        title.textContent =
+            String(book.title || "");
 
-return;
+
+        const author =
+            document.createElement("p");
+
+        author.textContent =
+            String(book.author || "");
+
+
+        const category =
+            document.createElement("p");
+
+        category.textContent =
+            String(book.category || "");
+
+
+        const description =
+            document.createElement("p");
+
+        description.classList.add(
+            "description"
+        );
+
+        description.textContent =
+            String(
+                book.description ||
+                "No description available."
+            );
+
+
+        const price =
+            document.createElement("p");
+
+        price.classList.add(
+            "price"
+        );
+
+        price.textContent =
+            `$${Number(book.price).toFixed(2)}`;
+
+
+        // ======================================
+        // EDIT BUTTON
+        // ======================================
+
+        const editButton =
+            document.createElement("button");
+
+        editButton.classList.add(
+            "edit-button"
+        );
+
+        editButton.dataset.id =
+            String(book.id);
+
+        editButton.textContent =
+            "Edit";
+
+
+        editButton.addEventListener(
+            "click",
+            function() {
+
+                startEditingBook(book);
+
+            }
+        );
+
+
+        // ======================================
+        // DELETE BUTTON
+        // ======================================
+
+        const deleteButton =
+            document.createElement("button");
+
+        deleteButton.classList.add(
+            "delete-button"
+        );
+
+        deleteButton.dataset.id =
+            String(book.id);
+
+        deleteButton.textContent =
+            "Delete";
+
+
+        deleteButton.addEventListener(
+            "click",
+            function() {
+
+                deleteBook(book.id);
+
+            }
+        );
+
+
+        // ======================================
+        // ADD ELEMENTS TO CARD
+        // ======================================
+
+        card.appendChild(image);
+
+        card.appendChild(title);
+
+        card.appendChild(author);
+
+        card.appendChild(category);
+
+        card.appendChild(description);
+
+        card.appendChild(price);
+
+        card.appendChild(editButton);
+
+        card.appendChild(deleteButton);
+
+        adminBooks.appendChild(card);
+
+    });
 
 }
 
-fetch("/api/admin/books/" + id, {
 
-method:"DELETE"
+// ======================================
+// START EDITING BOOK
+// ======================================
 
-})
+function startEditingBook(book) {
 
-.then(function(response){
-
-return response.json();
-
-})
-
-.then(function(data){
-
-alert(data.message);
-
-loadBooks();
-
-})
-
-.catch(function(error){
-
-console.error(error);
-
-});
-
-});
-
-});
+    editingBookId =
+        book.id;
 
 
-const editButtons =
-document.querySelectorAll(".edit-button");
+    document.querySelector("#title").value =
+        book.title || "";
 
-editButtons.forEach(function(button){
 
-button.addEventListener("click", function(){
+    document.querySelector("#author").value =
+        book.author || "";
 
-const id =
-Number(button.dataset.id);
 
-fetch("/api/admin/books")
+    document.querySelector("#category").value =
+        book.category || "";
 
-.then(function(response){
 
-return response.json();
+    document.querySelector("#price").value =
+        book.price || "";
 
-})
 
-.then(function(books){
+    document.querySelector("#description").value =
+        book.description || "";
 
-const book =
-books.find(function(item){
 
-return item.id === id;
+    const submitButton =
+        form.querySelector(
+            'button[type="submit"]'
+        );
 
-});
 
-if(!book){
+    submitButton.textContent =
+        "Update Book";
 
-return;
+
+    form.scrollIntoView({
+        behavior: "smooth"
+    });
 
 }
 
-editingBookId = id;
 
-document.querySelector("#title").value =
-book.title;
+// ======================================
+// FORM SUBMISSION
+// ======================================
 
-document.querySelector("#author").value =
-book.author;
+form.addEventListener(
+    "submit",
+    function(event) {
 
-document.querySelector("#category").value =
-book.category;
-
-document.querySelector("#price").value =
-book.price;
-
-document.querySelector("button[type='submit']").textContent =
-"Update Book";
-
-});
-
-});
-
-}); }
+        event.preventDefault();
 
 
+        const title =
+            document.querySelector("#title").value.trim();
 
-form.addEventListener("submit", function(event){
 
-event.preventDefault();
+        const author =
+            document.querySelector("#author").value.trim();
 
-const book = {
 
-title:
-document.querySelector("#title").value,
+        const category =
+            document.querySelector("#category").value.trim();
 
-author:
-document.querySelector("#author").value,
 
-category:
-document.querySelector("#category").value,
+        const price =
+            Number(
+                document.querySelector("#price").value
+            );
 
-price:
-document.querySelector("#price").value
 
-};
+        const description =
+            document.querySelector("#description").value.trim();
 
-let url = "/api/admin/books";
 
-let method = "POST";
+        if (
+            !title ||
+            !author ||
+            !category ||
+            !description ||
+            !Number.isFinite(price) ||
+            price < 0
+        ) {
 
-if(editingBookId !== null){
+            alert(
+                "Please enter valid book information."
+            );
 
-url =
-"/api/admin/books/" + editingBookId;
+            return;
 
-method = "PUT";
+        }
+
+
+        const bookData = {
+
+            title:
+                title,
+
+            author:
+                author,
+
+            category:
+                category,
+
+            price:
+                price,
+
+            description:
+                description
+
+        };
+
+
+        // ======================================
+        // UPDATE EXISTING BOOK
+        // ======================================
+
+        if (editingBookId !== null) {
+
+            fetch(
+                "/api/admin/books/" +
+                editingBookId,
+                {
+
+                    method:
+                        "PUT",
+
+                    headers: {
+
+                        "Content-Type":
+                            "application/json",
+
+                        "Authorization":
+                            "Bearer " +
+                            jwtToken
+
+                    },
+
+                    body:
+                        JSON.stringify(
+                            bookData
+                        )
+
+                }
+            )
+
+            .then(function(response) {
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        "Unable to update book."
+                    );
+
+                }
+
+                return response.json();
+
+            })
+
+            .then(function() {
+
+                alert(
+                    "Book updated successfully."
+                );
+
+                editingBookId =
+                    null;
+
+                form.reset();
+
+                const submitButton =
+                    form.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                submitButton.textContent =
+                    "Add Book";
+
+                loadBooks();
+
+            })
+
+            .catch(function(error) {
+
+                console.error(
+                    "Error updating book:",
+                    error
+                );
+
+                alert(
+                    "Unable to update book."
+                );
+
+            });
+
+            return;
+
+        }
+
+
+        // ======================================
+        // ADD NEW BOOK
+        // ======================================
+
+        fetch(
+            "/api/admin/books",
+            {
+
+                method:
+                    "POST",
+
+                headers: {
+
+                    "Content-Type":
+                        "application/json",
+
+                    "Authorization":
+                        "Bearer " +
+                        jwtToken
+
+                },
+
+                body:
+                    JSON.stringify(
+                        bookData
+                    )
+
+            }
+        )
+
+        .then(function(response) {
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Unable to add book."
+                );
+
+            }
+
+            return response.json();
+
+        })
+
+        .then(function() {
+
+            alert(
+                "Book added successfully."
+            );
+
+            form.reset();
+
+            loadBooks();
+
+        })
+
+        .catch(function(error) {
+
+            console.error(
+                "Error adding book:",
+                error
+            );
+
+            alert(
+                "Unable to add book."
+            );
+
+        });
+
+    }
+);
+
+
+// ======================================
+// DELETE BOOK
+// ======================================
+
+function deleteBook(bookId) {
+
+    const confirmed =
+        confirm(
+            "Are you sure you want to delete this book?"
+        );
+
+
+    if (!confirmed) {
+
+        return;
+
+    }
+
+
+    fetch(
+        "/api/admin/books/" +
+        bookId,
+        {
+
+            method:
+                "DELETE",
+
+            headers: {
+
+                "Authorization":
+                    "Bearer " +
+                    jwtToken
+
+            }
+
+        }
+    )
+
+    .then(function(response) {
+
+        if (!response.ok) {
+
+            throw new Error(
+                "Unable to delete book."
+            );
+
+        }
+
+        return response.json();
+
+    })
+
+    .then(function() {
+
+        alert(
+            "Book deleted successfully."
+        );
+
+        loadBooks();
+
+    })
+
+    .catch(function(error) {
+
+        console.error(
+            "Error deleting book:",
+            error
+        );
+
+        alert(
+            "Unable to delete book."
+        );
+
+    });
 
 }
-
-fetch(url,{
-
-method:method,
-
-headers:{
-
-"Content-Type":"application/json"
-
-},
-
-body:JSON.stringify(book)
-
-})
-
-.then(function(response){
-
-return response.json();
-
-})
-
-.then(function(data){
-
-alert(data.message);
-
-form.reset();
-
-editingBookId = null;
-
-document.querySelector("button[type='submit']").textContent =
-"Add Book";
-
-loadBooks();
-
-})
-
-.catch(function(error){
-
-console.error(error);
-
-});
-
-});
-
-

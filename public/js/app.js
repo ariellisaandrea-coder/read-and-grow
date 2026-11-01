@@ -4,321 +4,396 @@ let cartCount = 0;
 
 
 const booksContainerElement =
- document.querySelector("#books-container");
-
+    document.querySelector("#books-container");
 
 const cartCountElement =
- document.querySelector("#cart-count");
-
+    document.querySelector("#cart-count");
 
 const cartItemsElement =
- document.querySelector("#cart-items");
+    document.querySelector("#cart-items");
 
 
+// ==========================================
 // ADD BOOK TO CART
+// ==========================================
 
 booksContainerElement.addEventListener(
- "click",
- function (event) {
+    "click",
+    function(event) {
 
- if (
- event.target.classList.contains(
- "add-to-cart"
- )
- ) {
+        if (
+            event.target.classList.contains(
+                "add-to-cart"
+            )
+        ) {
 
- const bookName =
- event.target.dataset.book;
-
-
- const bookPrice =
- Number(
- event.target.dataset.price
- );
+            const bookId =
+                Number(
+                    event.target.dataset.bookId
+                );
 
 
- const existingBook =
- cart.find(function (item) {
+            if (!Number.isInteger(bookId)) {
 
- return item.name === bookName;
+                console.error(
+                    "Invalid book ID."
+                );
 
- });
-
-
- if (existingBook) {
-
- existingBook.quantity =
- existingBook.quantity + 1;
-
- } else {
-
- cart.push({
-
- name: bookName,
-
- price: bookPrice,
-
- quantity: 1
-
- });
-
- }
+                return;
+            }
 
 
- updateCartCount();
+            const existingBook =
+                cart.find(function(item) {
 
- displayCart();
+                    return (
+                        item.bookId === bookId
+                    );
 
- }
+                });
 
- }
+
+            if (existingBook) {
+
+                existingBook.quantity =
+                    existingBook.quantity + 1;
+
+            } else {
+
+                cart.push({
+
+                    bookId: bookId,
+
+                    quantity: 1
+
+                });
+
+            }
+
+
+            updateCartCount();
+
+            displayCart();
+
+        }
+
+    }
 );
 
 
+// ==========================================
 // CART BUTTONS
+// ==========================================
 
 cartItemsElement.addEventListener(
- "click",
- function (event) {
+    "click",
+    function(event) {
 
- const index =
- Number(
- event.target.dataset.index
- );
-
-
- if (
- event.target.classList.contains(
- "increase-button"
- )
- ) {
-
- cart[index].quantity =
- cart[index].quantity + 1;
+        const index =
+            Number(
+                event.target.dataset.index
+            );
 
 
- updateCartCount();
+        if (
+            !Number.isInteger(index)
+        ) {
 
- displayCart();
-
- }
-
-
- if (
- event.target.classList.contains(
- "decrease-button"
- )
- ) {
-
- if (
- cart[index].quantity > 1
- ) {
-
- cart[index].quantity =
- cart[index].quantity - 1;
+            return;
+        }
 
 
- updateCartCount();
+        if (
+            event.target.classList.contains(
+                "increase-button"
+            )
+        ) {
 
- displayCart();
+            cart[index].quantity =
+                cart[index].quantity + 1;
 
- }
+            updateCartCount();
 
- }
+            displayCart();
 
-
- if (
- event.target.classList.contains(
- "remove-button"
- )
- ) {
-
- cart.splice(index, 1);
+        }
 
 
- updateCartCount();
+        if (
+            event.target.classList.contains(
+                "decrease-button"
+            )
+        ) {
 
- displayCart();
+            if (
+                cart[index].quantity > 1
+            ) {
 
- }
+                cart[index].quantity =
+                    cart[index].quantity - 1;
 
- }
+                updateCartCount();
+
+                displayCart();
+
+            }
+
+        }
+
+
+        if (
+            event.target.classList.contains(
+                "remove-button"
+            )
+        ) {
+
+            cart.splice(index, 1);
+
+            updateCartCount();
+
+            displayCart();
+
+        }
+
+    }
 );
 
 
+// ==========================================
 // UPDATE CART COUNT
+// ==========================================
 
 function updateCartCount() {
 
- cartCount =
- cart.reduce(
- function (total, book) {
+    cartCount =
+        cart.reduce(
+            function(total, book) {
 
- return total +
- book.quantity;
+                return (
+                    total +
+                    book.quantity
+                );
 
- },
- 0
- );
+            },
+            0
+        );
 
 
- cartCountElement.textContent =
- cartCount;
+    cartCountElement.textContent =
+        cartCount;
 
 }
 
 
+// ==========================================
 // DISPLAY CART
+// ==========================================
 
 function displayCart() {
 
- cartItemsElement.innerHTML = "";
+    cartItemsElement.replaceChildren();
 
 
- let total = 0;
+    if (cart.length === 0) {
+
+        const emptyMessage =
+            document.createElement("p");
+
+        emptyMessage.textContent =
+            "Your cart is empty.";
+
+        cartItemsElement.appendChild(
+            emptyMessage
+        );
+
+        return;
+    }
 
 
- cart.forEach(function (book, index) {
+    cart.forEach(
+        function(book, index) {
 
- const subtotal =
- book.price *
- book.quantity;
-
-
- const bookElement =
- document.createElement("div");
+            const bookElement =
+                document.createElement("div");
 
 
- bookElement.innerHTML = `
+            // BOOK ID
 
- <p>
- <strong>
- ${book.name}
- </strong>
- </p>
+            const bookIdParagraph =
+                document.createElement("p");
 
+            const bookIdStrong =
+                document.createElement("strong");
 
- <p>
- Price:
- $${book.price.toFixed(2)}
- </p>
+            bookIdStrong.textContent =
+                "Book ID: " +
+                String(book.bookId);
 
+            bookIdParagraph.appendChild(
+                bookIdStrong
+            );
 
- <div
- class="quantity-controls"
- >
-
- <button
- class="decrease-button"
- data-index="${index}"
- >
- -
- </button>
+            bookElement.appendChild(
+                bookIdParagraph
+            );
 
 
- <span>
- ${book.quantity}
- </span>
+            // QUANTITY
+
+            const quantityParagraph =
+                document.createElement("p");
+
+            quantityParagraph.textContent =
+                "Quantity: " +
+                String(book.quantity);
+
+            bookElement.appendChild(
+                quantityParagraph
+            );
 
 
- <button
- class="increase-button"
- data-index="${index}"
- >
- +
- </button>
+            // QUANTITY CONTROLS
 
- </div>
+            const quantityControls =
+                document.createElement("div");
 
-
- <p>
- Subtotal:
- $${subtotal.toFixed(2)}
- </p>
+            quantityControls.className =
+                "quantity-controls";
 
 
- <button
- class="remove-button"
- data-index="${index}"
- >
- Remove
- </button>
+            const decreaseButton =
+                document.createElement("button");
+
+            decreaseButton.className =
+                "decrease-button";
+
+            decreaseButton.dataset.index =
+                String(index);
+
+            decreaseButton.textContent =
+                "-";
 
 
- <hr>
+            const quantitySpan =
+                document.createElement("span");
 
- `;
-
-
- cartItemsElement.appendChild(
- bookElement
- );
+            quantitySpan.textContent =
+                String(book.quantity);
 
 
- total =
- total +
- subtotal;
+            const increaseButton =
+                document.createElement("button");
 
- });
+            increaseButton.className =
+                "increase-button";
 
+            increaseButton.dataset.index =
+                String(index);
 
- const totalElement =
- document.createElement("h3");
-
-
- totalElement.textContent =
- "Total: $" +
- total.toFixed(2);
+            increaseButton.textContent =
+                "+";
 
 
- cartItemsElement.appendChild(
- totalElement
- );
+            quantityControls.appendChild(
+                decreaseButton
+            );
+
+            quantityControls.appendChild(
+                quantitySpan
+            );
+
+            quantityControls.appendChild(
+                increaseButton
+            );
 
 
- const checkoutButton =
- document.createElement("button");
+            bookElement.appendChild(
+                quantityControls
+            );
 
 
- checkoutButton.textContent =
- "Proceed to Checkout";
+            // REMOVE BUTTON
+
+            const removeButton =
+                document.createElement("button");
+
+            removeButton.className =
+                "remove-button";
+
+            removeButton.dataset.index =
+                String(index);
+
+            removeButton.textContent =
+                "Remove";
 
 
- checkoutButton.className =
- "checkout-button";
+            bookElement.appendChild(
+                removeButton
+            );
 
 
- cartItemsElement.appendChild(
- checkoutButton
- );
+            // SEPARATOR
+
+            bookElement.appendChild(
+                document.createElement("hr")
+            );
 
 
- checkoutButton.addEventListener(
- "click",
- function () {
+            cartItemsElement.appendChild(
+                bookElement
+            );
 
- if (
- cart.length === 0
- ) {
-
- alert(
- "Your cart is empty."
- );
-
- } else {
-
- localStorage.setItem(
- "readAndGrowCart",
- JSON.stringify(cart)
- );
+        }
+    );
 
 
- window.location.href =
- "checkout.html";
+    // ==========================================
+    // CHECKOUT BUTTON
+    // ==========================================
 
- }
+    const checkoutButton =
+        document.createElement("button");
 
- }
- );
+
+    checkoutButton.textContent =
+        "Proceed to Checkout";
+
+
+    checkoutButton.className =
+        "checkout-button";
+
+
+    cartItemsElement.appendChild(
+        checkoutButton
+    );
+
+
+    checkoutButton.addEventListener(
+        "click",
+        function() {
+
+            if (
+                cart.length === 0
+            ) {
+
+                alert(
+                    "Your cart is empty."
+                );
+
+                return;
+            }
+
+
+            localStorage.setItem(
+                "readAndGrowCart",
+                JSON.stringify(cart)
+            );
+
+
+            window.location.href =
+                "checkout.html";
+
+        }
+    );
 
 }
